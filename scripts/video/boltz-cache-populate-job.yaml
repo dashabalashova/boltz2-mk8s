@@ -1,0 +1,29 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: boltz-cache-populate
+spec:
+  backoffLimit: 2
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+      - name: downloader
+        image: ubuntu:22.04
+        command: ["/bin/bash", "-c"]
+        args:
+          - apt-get update -y && apt-get install -y wget tar ca-certificates || true;
+            mkdir -p /data/.boltz;
+            cd /data/.boltz;
+            wget -nc https://huggingface.co/boltz-community/boltz-1/resolve/main/ccd.pkl;
+            wget -nc https://huggingface.co/boltz-community/boltz-2/resolve/main/mols.tar;
+            if [ -f mols.tar ] && [ ! -d mols ]; then tar -xf mols.tar && touch .mols_extracted; fi;
+            wget -nc https://model-gateway.boltz.bio/boltz2_conf.ckpt || true;
+            wget -nc https://model-gateway.boltz.bio/boltz2_aff.ckpt || true;
+        volumeMounts:
+        - name: my-pvc
+          mountPath: /data
+      volumes:
+      - name: my-pvc
+        persistentVolumeClaim:
+          claimName: csi-pvc

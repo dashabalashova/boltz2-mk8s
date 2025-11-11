@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: boltz-pre-pull
+  labels:
+    app: boltz-pre-pull
+spec:
+  selector:
+    matchLabels:
+      app: boltz-pre-pull
+  template:
+    metadata:
+      labels:
+        app: boltz-pre-pull
+    spec:
+      tolerations:
+      - operator: "Exists"
+      containers:
+      - name: prepull
+        image: $BOLTZ_IMAGE
+        imagePullPolicy: IfNotPresent
+        command: ["sleep", "infinity"]

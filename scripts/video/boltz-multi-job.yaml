@@ -1,0 +1,50 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: boltz-runner
+spec:
+  completions: 16           # Total tasks (001..016)
+  parallelism: 16           # Run all tasks in parallel
+  completionMode: Indexed   # Indexing 0..15 available via annotation
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+      - name: boltz-runner
+        image: $BOLTZ_IMAGE
+        env:
+          - name: JOB_INDEX
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.annotations['batch.kubernetes.io/job-completion-index']
+          - name: NUM_WORKERS
+            value: "2"
+          - name: OMP_NUM_THREADS
+            value: "1"
+          - name: MKL_NUM_THREADS
+            value: "1"
+        command: ["bash","-lc"]
+        args:
+          - |
+            set -e
+            idx=$(printf '%03d' $(( JOB_INDEX + 1 )))
+            d="/data/yamls_${idx}"
+            mkdir -p /data/results
+            echo "Using directory: ${d}"
+            boltz predict "${d}" --cache /data/.boltz --out_dir /data/results/
+        resources:
+          limits:
+            nvidia.com/gpu: 1
+        volumeMounts:
+          - name: my-csi-volume
+            mountPath: /data
+          - name: dshm
+            mountPath: /dev/shm
+      volumes:
+        - name: my-csi-volume
+          persistentVolumeClaim:
+            claimName: csi-pvc
+        - name: dshm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 8Gi
