@@ -94,7 +94,7 @@ envsubst '$BOLTZ_IMAGE' < scripts/video/boltz-multi-job.yaml | kubectl apply -f 
 
 kubectl get pods
 kubectl logs jobs/boltz-runner
-kubectl exec -it my-csi-app -- ls -lah /data/.boltz
+kubectl exec -it my-csi-app -- ls -lah /data/results
 
 echo "Waiting for boltz-runner job to complete..."
 kubectl wait --for=condition=complete job/boltz-runner --timeout=-1s
