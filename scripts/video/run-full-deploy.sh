@@ -31,7 +31,7 @@ nebius iam get-access-token | \
 
 export NB_REGISTRY_PATH=$(echo $NB_REGISTRY_ID | cut -d- -f2)
 
-docker tag boltz-runner:v1.0.0 cr.$REGION_ID.nebius.cloud/$NB_REGISTRY_PATH/boltz-runner:v1.0.0
+docker tag boltz-runner cr.$REGION_ID.nebius.cloud/$NB_REGISTRY_PATH/boltz-runner:v1.0.0
 docker push cr.$REGION_ID.nebius.cloud/$NB_REGISTRY_PATH/boltz-runner:v1.0.0
 
 # 3. Container Storage Interface PVC & data
