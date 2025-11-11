@@ -69,6 +69,7 @@ kubectl apply -f scripts/video/boltz-cache-populate-job.yaml
 # 4.2 wait
 
 kubectl exec -it my-csi-app -- ls -lah /data/.boltz
+kubectl logs jobs/boltz-cache-populate
 
 if kubectl rollout status daemonset/boltz-pre-pull --timeout=20m; then
   echo "✅ COMPLETED"
